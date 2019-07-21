@@ -18,7 +18,7 @@ class TrinaryMCL(BaseMCL):
     def communication(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         self.communication_share_trinary_connectivity_change_to_all_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
 
-    def predict(self, node):
+    def predict(self, config, node):
         pass
 
     def _trinary_state_changed(self, n1, n2, previous_global_state_matrix, current_global_state_matrix):

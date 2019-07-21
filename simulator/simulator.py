@@ -70,6 +70,11 @@ class Simulator:
             'node_positions': []
         }
 
+        config = {
+            'max_v': max_v,
+            'communication_radius': communication_radius,
+        }
+
         # Initialize Results Dictionaries
         for a in self.algorithms:
             for k in algorithm_results.keys():
@@ -99,16 +104,25 @@ class Simulator:
                 a.communication(self.nodes, self.previous_global_state_matrix, self.current_global_state_matrix)
                 algorithm_results['number_of_packets'][a].append(a.get_total_number_of_packets())
 
-            # # Make predictions for all nodes
-            # for a in self.algorithms:
-            #     for n in self.nodes:
-            #         a.predict(n)
-            #
-            # # Evaluate Predictions
-            # for a in self.algorithms:
-            #     accuracy = 0.0
-            #     for n in self.nodes:
-            #         pass
+            # Make predictions for all nodes
+            for a in self.algorithms:
+                for n in self.nodes:
+                    n.one_hop_neighbor_predicted_distances[a] = {}
+                a.predict(config, self.nodes)
+
+            # Evaluate Predictions
+            for a in self.algorithms:
+                total_distance_error = 0.0
+                count = 0
+                for i, n1 in enumerate(self.nodes):  # type: Node
+                    if not n1.is_anchor:
+                        for j, n2 in enumerate(self.nodes): # type: Node
+                            if self.current_global_state_matrix[i,j] > 0:
+                                distance_predicted = n1.one_hop_neighbor_predicted_distances[a][n2] if n2 in n1.one_hop_neighbor_predicted_distances[a] else 0.0
+                                distance_actual = n1.distance(n2)
+                                total_distance_error += abs(distance_actual - distance_predicted)
+                                count += 1
+                algorithm_results['accuracy'][a].append(total_distance_error / count if count > 0 else 0.0)
 
         return simulator_results, algorithm_results
 

@@ -18,6 +18,7 @@ class Node:
         self.destination = None
         self.one_hop_neighbors = []
         self.two_hop_neighbors = []
+        self.one_hop_neighbor_predicted_distances = {}
 
     def distance(self, n2: Node):
         return self.currentP.distance(n2.currentP)

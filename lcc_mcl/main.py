@@ -27,7 +27,7 @@ class LCC_MCL(BaseMCL):
                         if self._are_lcc_close(n2, n3):
                             self.add_packet_communication('share_gps_change_to_second_hop_neighbors')
 
-    def predict(self, node):
+    def predict(self, config, node):
         pass
 
     def _are_lcc_close(self, n1, n2):

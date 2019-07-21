@@ -18,6 +18,5 @@ class OrbitMCL(BaseMCL):
         self.communication_share_binary_connectivity_change_to_all_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
         self.communication_share_gps_to_all_1_and_2_hop_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
 
-
-    def predict(self, node):
+    def predict(self, config, node):
         pass
