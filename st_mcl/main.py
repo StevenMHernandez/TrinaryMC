@@ -89,6 +89,7 @@ class StMCL(BaseMCL):
                 if n1 not in self.previous_sample_sets:
                     self.previous_sample_sets[n1] = []
                 sample_set, p_pred = self.monte_carlo(config, self.previous_sample_sets[n1], n1)
+                n1.p_pred[self] = p_pred
                 self.previous_sample_sets[n1] = sample_set
 
                 for n2 in n1.one_hop_neighbors:  # type: Node

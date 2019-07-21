@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from base_mcl_algorithm.base_mcl import BaseMCL
@@ -15,7 +17,7 @@ STATE_RETREATING = 2
 
 class Simulator:
     algorithms = [
-        TrinaryMCL(),
+        # TrinaryMCL(),
         StMCL(),
         VA_MCL(),
         OrbitMCL(),
@@ -120,6 +122,8 @@ class Simulator:
                             if self.current_global_state_matrix[i,j] > 0:
                                 distance_predicted = n1.one_hop_neighbor_predicted_distances[a][n2] if n2 in n1.one_hop_neighbor_predicted_distances[a] else 0.0
                                 distance_actual = n1.distance(n2)
+                                if math.isnan(distance_predicted):
+                                    distance_predicted = 0.0
                                 total_distance_error += abs(distance_actual - distance_predicted)
                                 count += 1
                 algorithm_results['accuracy'][a].append(total_distance_error / count if count > 0 else 0.0)

@@ -1,19 +1,33 @@
-from base_mcl_algorithm.base_mcl import BaseMCL
+import math
+from random import uniform
+
 from simulator.node import Node
+from simulator.point import Point
+from st_mcl.main import StMCL
 
 
-class LCC_MCL(BaseMCL):
+class LCC_MCL(StMCL):
     def __init__(self):
         super(LCC_MCL, self).__init__()
 
-    def initialization_step(self):
-        pass
+    def _generate_sample(self, config, node):
+        max_x = math.inf
+        max_y = math.inf
+        min_x = -math.inf
+        min_y = -math.inf
+        for n1 in node.one_hop_neighbors:  # type: Node
+            if n1.is_anchor:
+                max_x = min(max_x, n1.currentP.x + config['communication_radius'])
+                max_y = min(max_y, n1.currentP.y + config['communication_radius'])
+                min_x = max(min_x, n1.currentP.x - config['communication_radius'])
+                min_y = max(min_y, n1.currentP.y - config['communication_radius'])
+            elif self._are_lcc_close(node, n1):
+                max_x = min(max_x, n1.p_pred[self].x + config['communication_radius'])
+                max_y = min(max_y, n1.p_pred[self].y + config['communication_radius'])
+                min_x = max(min_x, n1.p_pred[self].x - config['communication_radius'])
+                min_y = max(min_y, n1.p_pred[self].y - config['communication_radius'])
 
-    def sampling_step(self):
-        pass
-
-    def filtering_step(self):
-        pass
+        return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 
     def communication(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         self.communication_share_binary_connectivity_change_to_all_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
@@ -26,9 +40,6 @@ class LCC_MCL(BaseMCL):
                     for n3 in n2.one_hop_neighbors:
                         if self._are_lcc_close(n2, n3):
                             self.add_packet_communication('share_gps_change_to_second_hop_neighbors')
-
-    def predict(self, config, node):
-        pass
 
     def _are_lcc_close(self, n1, n2):
         num_intersection = []

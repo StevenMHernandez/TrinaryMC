@@ -3,7 +3,6 @@ from time import time
 import matplotlib.pyplot as plt
 
 from simulator.simulator import Simulator
-from orbit_mcl.main import OrbitMCL
 
 if __name__ == "__main__":
     start = time()
