@@ -3,11 +3,12 @@ from time import time
 import matplotlib.pyplot as plt
 
 from simulator.simulator import Simulator
+from orbit_mcl.main import OrbitMCL
 
 if __name__ == "__main__":
     start = time()
     simulator = Simulator()
-    simulator_results, algorithm_results = simulator.run(num_time_instances=25,
+    simulator_results, algorithm_results = simulator.run(num_time_instances=10,
                                                          num_nodes=100,
                                                          num_anchors=25,
                                                          stage_size=(1000, 1000),

@@ -1,5 +1,5 @@
 import math
-from random import uniform
+from random import uniform, shuffle
 
 from simulator.node import Node
 from simulator.point import Point
@@ -10,8 +10,7 @@ class VA_MCL(StMCL):
     def __init__(self):
         super(VA_MCL, self).__init__()
 
-    @staticmethod
-    def _generate_sample(config, node):
+    def _generate_sample(self, config, node):
         max_x = math.inf
         max_y = math.inf
         min_x = -math.inf
@@ -26,11 +25,11 @@ class VA_MCL(StMCL):
                     va_y = ((a1.currentP.y - a2.currentP.y) / 2) + a1.currentP.y
                     virtual_anchors.append(Point(va_x, va_y))
 
-        for a in virtual_anchors:  # type: Node
-            max_x = min(max_x, a.currentP.x + config['communication_radius'])
-            max_y = min(max_y, a.currentP.y + config['communication_radius'])
-            min_x = max(min_x, a.currentP.x - config['communication_radius'])
-            min_y = max(min_y, a.currentP.y - config['communication_radius'])
+        for a in virtual_anchors:  # type: Point
+            max_x = min(max_x, a.x + config['communication_radius'])
+            max_y = min(max_y, a.y + config['communication_radius'])
+            min_x = max(min_x, a.x - config['communication_radius'])
+            min_y = max(min_y, a.y - config['communication_radius'])
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 

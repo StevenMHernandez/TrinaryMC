@@ -16,19 +16,17 @@ class StMCL(BaseMCL):
     def __init__(self):
         super(StMCL, self).__init__()
 
-    @staticmethod
-    def monte_carlo(config, sample_set, node):
+    def monte_carlo(self, config, sample_set, node):
         if len(sample_set) == 0:
-            sample_set = StMCL.initialization_step(config, node)
-        sample_set = StMCL.sampling_step(config, node, sample_set)
-        sample_set = StMCL.filtering_step(config, node, sample_set)
-        if len(sample_set) > StMCL.sample_threshold:
+            sample_set = self.initialization_step(config, node)
+        sample_set = self.sampling_step(config, node, sample_set)
+        if len(sample_set) > self.sample_threshold:
             shuffle(sample_set)
-            sample_set = sample_set[0:StMCL.sample_threshold]
-        return sample_set, StMCL.predicting_step(sample_set)
+            sample_set = sample_set[0:self.sample_threshold]
+        sample_set = self.filtering_step(config, node, sample_set)
+        return sample_set, self.predicting_step(sample_set)
 
-    @staticmethod
-    def _generate_sample(config, node):
+    def _generate_sample(self, config, node):
         max_x = math.inf
         max_y = math.inf
         min_x = -math.inf
@@ -41,16 +39,14 @@ class StMCL(BaseMCL):
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 
-    @staticmethod
-    def initialization_step(config, node):
+    def initialization_step(self, config, node):
         sample_set = []
         for i in range(StMCL.max_sample_iterations):
-            sample_set.append(StMCL._generate_sample(config, node))
+            sample_set.append(self._generate_sample(config, node))
 
         return sample_set
 
-    @staticmethod
-    def sampling_step(config, node, sample_set):
+    def sampling_step(self, config, node, sample_set):
         sampled_sample_set = []
 
         for i in range(StMCL.num_resample_iterations):
@@ -63,8 +59,7 @@ class StMCL(BaseMCL):
 
         return sampled_sample_set
 
-    @staticmethod
-    def filtering_step(config, node, sample_set):
+    def filtering_step(self, config, node, sample_set):
         filtered_sample_set = []
         for p in sample_set:
             is_valid = True
@@ -76,8 +71,7 @@ class StMCL(BaseMCL):
 
         return filtered_sample_set
 
-    @staticmethod
-    def predicting_step(sample_set):
+    def predicting_step(self, sample_set):
         if len(sample_set) == 0:
             return Point(0,0)
 
