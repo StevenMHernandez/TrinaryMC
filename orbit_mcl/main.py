@@ -13,8 +13,8 @@ class OrbitMCL(StMCL):
         super(OrbitMCL, self).__init__()
         return
 
-    def filtering_step(self, config, node, sample_set):
-        sample_set = super(OrbitMCL, self).filtering_step(config, node, sample_set)
+    def filtering_step(self, config, node, sample_set, current_global_state_matrix):
+        sample_set = super(OrbitMCL, self).filtering_step(config, node, sample_set, current_global_state_matrix)
 
         connectivity_graph = np.zeros((len(sample_set), len(sample_set)))
         for i, s1 in enumerate(sample_set):  # type: Point

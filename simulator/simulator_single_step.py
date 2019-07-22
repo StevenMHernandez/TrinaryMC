@@ -111,7 +111,7 @@ class SimulatorSingleStep(Simulator):
             #     shuffle(sample_set)
             #     sample_set = sample_set[0:a.sample_threshold]
             #     # plot_sample_set(ax[i], sample_set, 'b*')
-            sample_set = a.filtering_step(config, node, sample_set)
+            sample_set = a.filtering_step(config, node, sample_set, self.current_global_state_matrix)
             plot_sample_set(ax[i], sample_set, 'g*')
             # return sample_set, self.predicting_step(sample_set)
 

@@ -55,5 +55,5 @@ class BaseMCL(object):
                 for _ in n2.one_hop_neighbors:
                     self.add_packet_communication('share_gps_change_to_second_hop_neighbors')
 
-    def predict(self, config, node):
+    def predict(self, config, node, current_global_state_matrix):
         pass

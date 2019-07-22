@@ -9,18 +9,19 @@ from trinary_mcl.main import TrinaryMCL
 if __name__ == "__main__":
     start = time()
     simulator = Simulator()
-    communication_radius = 100
+    communication_radius = 50
     num_time_instances = 10
     simulator_results, algorithm_results = simulator.run(num_time_instances=num_time_instances,
-                                                         num_nodes=100,
+                                                         num_nodes=50,
                                                          num_anchors=10,
-                                                         stage_size=(1000, 1000),
+                                                         stage_size=(500, 500),
                                                          max_v=10,
                                                          communication_radius=communication_radius)
 
     PLOT_NODE_POSITIONS = False
     PLOT_NUMBER_OF_NODES = True
     PLOT_COMPUTATION_TIME = True
+    PLOT_NUMBER_OF_SAMPLES = True
     PLOT_COMMUNICATION = False
     PLOT_DISTANCE_ERROR = True
     PLOT_POSITION_ERROR = True
@@ -41,6 +42,14 @@ if __name__ == "__main__":
             plt.plot(algorithm_results['prediction_time'][algorithms])
         plt.xlabel("Experiment Time (s)")
         plt.ylabel("Time to compute predictions for all nodes (s)")
+        plt.legend([type(a) for a in simulator.algorithms])
+        plt.show()
+
+    if PLOT_NUMBER_OF_SAMPLES:
+        for algorithms in simulator.algorithms:
+            plt.plot(algorithm_results['number_of_samples'][algorithms])
+        plt.xlabel("Experiment Time (s)")
+        plt.ylabel("Number of Samples at end of algorithm")
         plt.legend([type(a) for a in simulator.algorithms])
         plt.show()
 

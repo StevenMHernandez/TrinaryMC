@@ -29,7 +29,7 @@ class LCC_MCL(StMCL):
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 
-    def filtering_step(self, config, node, sample_set):
+    def filtering_step(self, config, node, sample_set, current_global_state_matrix):
         filtered_sample_set = []
         for p in sample_set:
             is_valid = True

@@ -2,6 +2,8 @@ import math
 from random import random, uniform
 from random import shuffle
 
+import numpy as np
+
 from base_mcl_algorithm.base_mcl import BaseMCL
 from simulator.node import Node
 from simulator.point import Point
@@ -17,14 +19,14 @@ class StMCL(BaseMCL):
         self.num_resample_iterations = 10
         self.previous_sample_sets = {}
 
-    def monte_carlo(self, config, sample_set, node):
+    def monte_carlo(self, config, sample_set, node, current_global_state_matrix):
         if len(sample_set) == 0:
             sample_set = self.initialization_step(config, node)
         sample_set = self.sampling_step(config, node, sample_set)
         if len(sample_set) > self.sample_threshold:
             shuffle(sample_set)
             sample_set = sample_set[0:self.sample_threshold]
-        sample_set = self.filtering_step(config, node, sample_set)
+        sample_set = self.filtering_step(config, node, sample_set, current_global_state_matrix)
         return sample_set, self.predicting_step(sample_set)
 
     def _generate_sample(self, config, node):
@@ -62,7 +64,7 @@ class StMCL(BaseMCL):
 
         return sampled_sample_set
 
-    def filtering_step(self, config, node, sample_set):
+    def filtering_step(self, config, node, sample_set, current_global_state_matrix):
         filtered_sample_set = []
         for p in sample_set:
             is_valid = True
@@ -90,12 +92,12 @@ class StMCL(BaseMCL):
     def communication(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         self.communication_share_gps_to_all_1_and_2_hop_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
 
-    def predict(self, config, nodes):
+    def predict(self, config, nodes, current_global_state_matrix):
         # Predict point location for all nodes
         for n1 in nodes:  # type: Node
             if n1 not in self.previous_sample_sets:
                 self.previous_sample_sets[n1] = []
-            self.previous_sample_sets[n1], n1.p_pred[self] = self.monte_carlo(config, self.previous_sample_sets[n1], n1)
+            self.previous_sample_sets[n1], n1.p_pred[self] = self.monte_carlo(config, self.previous_sample_sets[n1], n1, current_global_state_matrix)
 
         # Use predicted point to determine predicted distance per neighbor
         for n1 in nodes:  # type: Node
@@ -105,3 +107,5 @@ class StMCL(BaseMCL):
                     n1.one_hop_neighbor_predicted_distances[self][n2] = n2.currentP.distance(p_pred)
                 elif self in n2.p_pred:
                     n1.one_hop_neighbor_predicted_distances[self][n2] = n2.p_pred[self].distance(p_pred)
+
+        return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))

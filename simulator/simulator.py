@@ -20,8 +20,8 @@ class Simulator:
     algorithms = [
         TrinaryMCL(),
         StMCL(),
-        # VA_MCL(),
-        # OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
+        VA_MCL(),
+        OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
         LCC_MCL(),
     ]
 
@@ -70,6 +70,7 @@ class Simulator:
             'distance_error': {},
             'position_error': {},
             'prediction_time': {},
+            'number_of_samples': {},
         }
         simulator_results = {
             'node_positions': [],
@@ -122,7 +123,7 @@ class Simulator:
                 start_time = time.time()
                 for n in self.nodes:
                     n.one_hop_neighbor_predicted_distances[a] = {}
-                a.predict(config, self.nodes)
+                algorithm_results['number_of_samples'][a].append(a.predict(config, self.nodes, self.current_global_state_matrix))
                 end_time = time.time()
                 algorithm_results['prediction_time'][a].append(end_time - start_time)
 
