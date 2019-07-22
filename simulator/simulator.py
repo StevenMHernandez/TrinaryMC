@@ -7,6 +7,7 @@ from base_mcl_algorithm.base_mcl import BaseMCL
 from orbit_mcl.main import OrbitMCL
 from simulator.node import Node
 from st_mcl.main import StMCL
+from trinary_mcl.main import TrinaryMCL
 from va_mcl.main import VA_MCL
 from lcc_mcl.main import LCC_MCL
 
@@ -17,10 +18,10 @@ STATE_RETREATING = 2
 
 class Simulator:
     algorithms = [
-        # TrinaryMCL(),
+        TrinaryMCL(),
         StMCL(),
-        VA_MCL(),
-        OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
+        # VA_MCL(),
+        # OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
         LCC_MCL(),
     ]
 
@@ -71,7 +72,9 @@ class Simulator:
             'prediction_time': {},
         }
         simulator_results = {
-            'node_positions': []
+            'node_positions': [],
+            'avg_number_of_first_hop_neighbors': [],
+            'avg_number_of_second_hop_neighbors': [],
         }
 
         config = {
@@ -103,6 +106,9 @@ class Simulator:
             self.update_one_hop_neighbors_lists(self.nodes)
             self.update_two_hop_neighbors_lists(self.nodes)
 
+            simulator_results['avg_number_of_first_hop_neighbors'].append(sum([len(n.one_hop_neighbors) for n in self.nodes]) / len(self.nodes))
+            simulator_results['avg_number_of_second_hop_neighbors'].append(sum([len(n.two_hop_neighbors) for n in self.nodes]) / len(self.nodes))
+
             # Log node positions
             for i in range(len(self.nodes)):
                 simulator_results['node_positions'][i].append(self.nodes[i].currentP)
@@ -125,6 +131,7 @@ class Simulator:
                 total_distance_error = 0.0
                 count = 0
                 for i, n1 in enumerate(self.nodes):  # type: Node
+                    # Anchors never add to the distance error
                     if not n1.is_anchor:
                         for j, n2 in enumerate(self.nodes):  # type: Node
                             if self.current_global_state_matrix[i,j] > 0:
@@ -138,11 +145,12 @@ class Simulator:
 
             # Evaluate Position Error (non-Trinary)
             for a in self.algorithms:
-                total_error = 0.0
-                for i, n1 in enumerate(self.nodes):  # type: Node
-                    if not math.isnan(n1.p_pred[a].x):
-                        total_error += n1.currentP.distance(n1.p_pred[a])
-                algorithm_results['position_error'][a].append(total_error)
+                if type(a) is not TrinaryMCL:
+                    total_error = 0.0
+                    for i, n1 in enumerate(self.nodes):  # type: Node
+                        if not math.isnan(n1.p_pred[a].x):
+                            total_error += n1.currentP.distance(n1.p_pred[a])
+                    algorithm_results['position_error'][a].append(total_error)
 
         return simulator_results, algorithm_results
 
