@@ -6,14 +6,14 @@ from simulator.point import Point
 
 
 class Node:
-    def __init__(self, index, is_anchor, max_x, max_y, max_v, communication_radius):
+    def __init__(self, index, is_anchor, config, currentP=None):
         self.index = index
         self.is_anchor = is_anchor
-        self.max_x = max_x
-        self.max_y = max_y
-        self.max_v = max_v
-        self.communication_radius = communication_radius
-        self.currentP = Point(random() * max_x, random() * max_y)
+        self.max_x = config['max_x']
+        self.max_y = config['max_y']
+        self.max_v = config['max_v']
+        self.communication_radius = config['communication_radius']
+        self.currentP = currentP if currentP is not None else Point(random() * self.max_x, random() * self.max_y)
         self.previousP = None
         self.destination = None
         self.one_hop_neighbors = []

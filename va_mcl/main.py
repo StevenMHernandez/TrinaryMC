@@ -24,6 +24,9 @@ class VA_MCL(StMCL):
                     va_x = ((a1.currentP.x - a2.currentP.x) / 2) + a1.currentP.x
                     va_y = ((a1.currentP.y - a2.currentP.y) / 2) + a1.currentP.y
                     virtual_anchors.append(Point(va_x, va_y))
+                    
+        if len(virtual_anchors) == 0:
+            return super(VA_MCL, self)._generate_sample(config, node)
 
         for a in virtual_anchors:  # type: Point
             max_x = min(max_x, a.x + config['communication_radius'])

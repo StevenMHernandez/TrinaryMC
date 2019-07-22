@@ -21,13 +21,30 @@ class LCC_MCL(StMCL):
                 max_y = min(max_y, n1.currentP.y + config['communication_radius'])
                 min_x = max(min_x, n1.currentP.x - config['communication_radius'])
                 min_y = max(min_y, n1.currentP.y - config['communication_radius'])
-            elif self._are_lcc_close(node, n1):
+            elif self in n1.p_pred and self._are_lcc_close(node, n1):
                 max_x = min(max_x, n1.p_pred[self].x + config['communication_radius'])
                 max_y = min(max_y, n1.p_pred[self].y + config['communication_radius'])
                 min_x = max(min_x, n1.p_pred[self].x - config['communication_radius'])
                 min_y = max(min_y, n1.p_pred[self].y - config['communication_radius'])
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
+
+    def filtering_step(self, config, node, sample_set):
+        filtered_sample_set = []
+        for p in sample_set:
+            is_valid = True
+            for n1 in node.one_hop_neighbors:  # type: Node
+                if n1.currentP.distance(p) > config['communication_radius']:
+                    if n1.is_anchor or (self in n1.p_pred and self._are_lcc_close(node, n1)):
+                        is_valid = False
+            for n1 in node.two_hop_neighbors:  # type: Node
+                if n1.currentP.distance(p) <= config['communication_radius']:
+                    if n1.is_anchor or (self in n1.p_pred and self._are_lcc_close(node, n1)):
+                        is_valid = False
+            if is_valid:
+                filtered_sample_set.append(p)
+
+        return filtered_sample_set
 
     def communication(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         self.communication_share_binary_connectivity_change_to_all_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)

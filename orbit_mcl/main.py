@@ -7,7 +7,7 @@ from st_mcl.main import StMCL
 
 
 class OrbitMCL(StMCL):
-    POINT_DISTANCE_THRESHOLD = 70.0
+    POINT_DISTANCE_THRESHOLD = 25.0
 
     def __init__(self):
         super(OrbitMCL, self).__init__()

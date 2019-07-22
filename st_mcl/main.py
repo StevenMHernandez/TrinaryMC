@@ -8,13 +8,14 @@ from simulator.point import Point
 
 
 class StMCL(BaseMCL):
-    sample_threshold = 100
-    max_sample_iterations = 100
-    num_resample_iterations = 10
-    previous_sample_sets = {}
 
     def __init__(self):
         super(StMCL, self).__init__()
+
+        self.sample_threshold = 100
+        self.max_sample_iterations = 100
+        self.num_resample_iterations = 10
+        self.previous_sample_sets = {}
 
     def monte_carlo(self, config, sample_set, node):
         if len(sample_set) == 0:
@@ -41,15 +42,17 @@ class StMCL(BaseMCL):
 
     def initialization_step(self, config, node):
         sample_set = []
-        for i in range(StMCL.max_sample_iterations):
-            sample_set.append(self._generate_sample(config, node))
+        for i in range(self.max_sample_iterations):
+            sample = self._generate_sample(config, node)
+            if not math.isnan(sample.x):
+                sample_set.append(sample)
 
         return sample_set
 
     def sampling_step(self, config, node, sample_set):
         sampled_sample_set = []
 
-        for i in range(StMCL.num_resample_iterations):
+        for i in range(self.num_resample_iterations):
             for p in sample_set:
                 d = random() * config['max_v']
                 a = uniform(0, 2 * math.pi)
@@ -65,6 +68,10 @@ class StMCL(BaseMCL):
             is_valid = True
             for a in [n for n in node.one_hop_neighbors if n.is_anchor]:  # type: Node
                 if a.currentP.distance(p) > config['communication_radius']:
+                    is_valid = False
+
+            for a in [n for n in node.two_hop_neighbors if n.is_anchor]:  # type: Node
+                if a.currentP.distance(p) <= config['communication_radius']:
                     is_valid = False
             if is_valid:
                 filtered_sample_set.append(p)
@@ -84,14 +91,17 @@ class StMCL(BaseMCL):
         self.communication_share_gps_to_all_1_and_2_hop_neighbors(nodes, previous_global_state_matrix, current_global_state_matrix)
 
     def predict(self, config, nodes):
+        # Predict point location for all nodes
         for n1 in nodes:  # type: Node
-            if len([n for n in n1.one_hop_neighbors if n.is_anchor]) > 0:
-                if n1 not in self.previous_sample_sets:
-                    self.previous_sample_sets[n1] = []
-                sample_set, p_pred = self.monte_carlo(config, self.previous_sample_sets[n1], n1)
-                n1.p_pred[self] = p_pred
-                self.previous_sample_sets[n1] = sample_set
+            if n1 not in self.previous_sample_sets:
+                self.previous_sample_sets[n1] = []
+            self.previous_sample_sets[n1], n1.p_pred[self] = self.monte_carlo(config, self.previous_sample_sets[n1], n1)
 
-                for n2 in n1.one_hop_neighbors:  # type: Node
-                    if n2.is_anchor:
-                        n1.one_hop_neighbor_predicted_distances[self][n2] = n2.currentP.distance(p_pred)
+        # Use predicted point to determine predicted distance per neighbor
+        for n1 in nodes:  # type: Node
+            for n2 in n1.one_hop_neighbors:  # type: Node
+                p_pred = n1.p_pred[self]
+                if n2.is_anchor:
+                    n1.one_hop_neighbor_predicted_distances[self][n2] = n2.currentP.distance(p_pred)
+                elif self in n2.p_pred:
+                    n1.one_hop_neighbor_predicted_distances[self][n2] = n2.p_pred[self].distance(p_pred)
