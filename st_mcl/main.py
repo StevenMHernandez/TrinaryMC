@@ -15,7 +15,7 @@ class StMCL(BaseMCL):
         super(StMCL, self).__init__()
 
         self.sample_threshold = 100
-        self.max_sample_iterations = 100
+        self.max_initial_sample_iterations = 300
         self.num_resample_iterations = 10
         self.previous_sample_sets = {}
 
@@ -44,7 +44,7 @@ class StMCL(BaseMCL):
 
     def initialization_step(self, config, node):
         sample_set = []
-        for i in range(self.max_sample_iterations):
+        for i in range(self.max_initial_sample_iterations):
             sample = self._generate_sample(config, node)
             if not math.isnan(sample.x):
                 sample_set.append(sample)

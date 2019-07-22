@@ -24,7 +24,7 @@ class TrinaryMCL(StMCL):
         min_x = -math.inf
         min_y = -math.inf
         for n, p in placed.items():  # type: Node, Point
-            if to_be_placed.index in n.one_hop_neighbors:
+            if to_be_placed in n.one_hop_neighbors:
                 max_x = min(max_x, p.x + config['communication_radius'])
                 max_y = min(max_y, p.y + config['communication_radius'])
                 min_x = max(min_x, p.x - config['communication_radius'])
@@ -49,7 +49,7 @@ class TrinaryMCL(StMCL):
 
     def initialization_step(self, config, node):
         sample_set = []
-        for i in range(self.max_sample_iterations):
+        for i in range(self.max_initial_sample_iterations):
             sample_set.append(self._generate_sample(config, node))
 
         return sample_set
@@ -129,7 +129,3 @@ class TrinaryMCL(StMCL):
                     n1.one_hop_neighbor_predicted_distances[self][n2] = n1.p_pred[self][n2]
 
         return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))
-
-    def _trinary_state_changed(self, n1, n2, previous_global_state_matrix, current_global_state_matrix):
-        return previous_global_state_matrix is None or \
-               previous_global_state_matrix[n1.index, n2.index] != current_global_state_matrix[n1.index, n2.index]

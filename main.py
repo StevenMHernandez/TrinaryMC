@@ -19,12 +19,12 @@ if __name__ == "__main__":
                                                          communication_radius=communication_radius)
 
     PLOT_NODE_POSITIONS = False
-    PLOT_NUMBER_OF_NODES = True
-    PLOT_COMPUTATION_TIME = True
+    PLOT_NUMBER_OF_NODES = False
+    PLOT_COMPUTATION_TIME = False
     PLOT_NUMBER_OF_SAMPLES = True
-    PLOT_COMMUNICATION = False
+    PLOT_COMMUNICATION = True
     PLOT_DISTANCE_ERROR = True
-    PLOT_POSITION_ERROR = True
+    PLOT_POSITION_ERROR = False
 
     if PLOT_NODE_POSITIONS:
         for points in simulator_results['node_positions']:
@@ -64,12 +64,12 @@ if __name__ == "__main__":
     if PLOT_POSITION_ERROR:
         print(algorithm_results['position_error'])
         for a in simulator.algorithms:
-            if type(a) is not TrinaryMCL:
+            if not isinstance(a, TrinaryMCL):
                 print(a, "average accuracy:", sum(algorithm_results['position_error'][a]) / communication_radius / len(algorithm_results['position_error'][a]))
                 plt.plot(range(1,num_time_instances+1), np.array(algorithm_results['position_error'][a]) / communication_radius, ':')
         plt.xlabel("Time (s)")
         plt.ylabel("Position Prediction Error")
-        plt.legend([type(a) for a in simulator.algorithms if type(a) is not TrinaryMCL])
+        plt.legend([type(a) for a in simulator.algorithms if not isinstance(a, TrinaryMCL)])
         plt.show()
 
     if PLOT_DISTANCE_ERROR:

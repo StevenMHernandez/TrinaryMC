@@ -99,7 +99,7 @@ class SimulatorSingleStep(Simulator):
 
         # Make predictions for all nodes
         for i, a in enumerate(self.algorithms):
-            a.max_sample_iterations = 1000
+            a.max_initial_sample_iterations = 1000
 
             # Run monte carlo and plot results here.
             node = self.nodes[0]

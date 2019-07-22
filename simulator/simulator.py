@@ -1,13 +1,18 @@
 import math
+import random
 import time
 
 import numpy as np
 
 from base_mcl_algorithm.base_mcl import BaseMCL
+from binary_mcl.main import BinaryMCL
+from binary_no_mem_mcl.main import BinaryNoMemMCL
 from orbit_mcl.main import OrbitMCL
 from simulator.node import Node
+from simulator.point import Point
 from st_mcl.main import StMCL
 from trinary_mcl.main import TrinaryMCL
+from trinary_mcl.sample_set import SampleSet
 from va_mcl.main import VA_MCL
 from lcc_mcl.main import LCC_MCL
 
@@ -18,6 +23,8 @@ STATE_RETREATING = 2
 
 class Simulator:
     algorithms = [
+        BinaryNoMemMCL(),
+        BinaryMCL(),
         TrinaryMCL(),
         StMCL(),
         VA_MCL(),
@@ -123,6 +130,7 @@ class Simulator:
                 start_time = time.time()
                 for n in self.nodes:
                     n.one_hop_neighbor_predicted_distances[a] = {}
+                random.seed(t)
                 algorithm_results['number_of_samples'][a].append(a.predict(config, self.nodes, self.current_global_state_matrix))
                 end_time = time.time()
                 algorithm_results['prediction_time'][a].append(end_time - start_time)
@@ -134,6 +142,7 @@ class Simulator:
                 for i, n1 in enumerate(self.nodes):  # type: Node
                     # Anchors never add to the distance error
                     if not n1.is_anchor:
+                        # for n2 in n1.one_hop_neighbors + n1.two_hop_neighbors:
                         for j, n2 in enumerate(self.nodes):  # type: Node
                             if self.current_global_state_matrix[i,j] > 0:
                                 distance_predicted = n1.one_hop_neighbor_predicted_distances[a][n2] if n2 in n1.one_hop_neighbor_predicted_distances[a] else 0.0
@@ -142,11 +151,13 @@ class Simulator:
                                     distance_predicted = 0.0
                                 total_distance_error += abs(distance_actual - distance_predicted)
                                 count += 1
+
+
                 algorithm_results['distance_error'][a].append(total_distance_error / count if count > 0 else 0.0)
 
             # Evaluate Position Error (non-Trinary)
             for a in self.algorithms:
-                if type(a) is not TrinaryMCL:
+                if not isinstance(a, TrinaryMCL):
                     total_error = 0.0
                     for i, n1 in enumerate(self.nodes):  # type: Node
                         if not math.isnan(n1.p_pred[a].x):
