@@ -15,9 +15,14 @@ class StMCL(BaseMCL):
         super(StMCL, self).__init__()
 
         self.sample_threshold = 100
-        self.max_initial_sample_iterations = 300
+        self.max_initial_sample_iterations = 50
         self.num_resample_iterations = 10
         self.previous_sample_sets = {}
+
+        self.use_two_hop_neighbors = False
+
+    def name(self):
+        return "standard_mcl"
 
     def monte_carlo(self, config, sample_set, node, current_global_state_matrix):
         if len(sample_set) == 0:
@@ -72,9 +77,10 @@ class StMCL(BaseMCL):
                 if a.currentP.distance(p) > config['communication_radius']:
                     is_valid = False
 
-            for a in [n for n in node.two_hop_neighbors if n.is_anchor]:  # type: Node
-                if a.currentP.distance(p) <= config['communication_radius']:
-                    is_valid = False
+            if self.use_two_hop_neighbors:
+                for a in [n for n in node.two_hop_neighbors if n.is_anchor]:  # type: Node
+                    if a.currentP.distance(p) <= config['communication_radius']:
+                        is_valid = False
             if is_valid:
                 filtered_sample_set.append(p)
 
@@ -97,15 +103,15 @@ class StMCL(BaseMCL):
         for n1 in nodes:  # type: Node
             if n1 not in self.previous_sample_sets:
                 self.previous_sample_sets[n1] = []
-            self.previous_sample_sets[n1], n1.p_pred[self] = self.monte_carlo(config, self.previous_sample_sets[n1], n1, current_global_state_matrix)
+            self.previous_sample_sets[n1], n1.p_pred[type(self)] = self.monte_carlo(config, self.previous_sample_sets[n1], n1, current_global_state_matrix)
 
         # Use predicted point to determine predicted distance per neighbor
         for n1 in nodes:  # type: Node
             for n2 in n1.one_hop_neighbors:  # type: Node
-                p_pred = n1.p_pred[self]
+                p_pred = n1.p_pred[type(self)]
                 if n2.is_anchor:
-                    n1.one_hop_neighbor_predicted_distances[self][n2] = n2.currentP.distance(p_pred)
+                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n2.currentP.distance(p_pred)
                 elif self in n2.p_pred:
-                    n1.one_hop_neighbor_predicted_distances[self][n2] = n2.p_pred[self].distance(p_pred)
+                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n2.p_pred[type(self)].distance(p_pred)
 
         return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))

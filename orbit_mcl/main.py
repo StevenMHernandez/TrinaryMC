@@ -11,7 +11,11 @@ class OrbitMCL(StMCL):
 
     def __init__(self):
         super(OrbitMCL, self).__init__()
+        self.use_two_hop_neighbors = True
         return
+
+    def name(self):
+        return "orbit"
 
     def filtering_step(self, config, node, sample_set, current_global_state_matrix):
         sample_set = super(OrbitMCL, self).filtering_step(config, node, sample_set, current_global_state_matrix)

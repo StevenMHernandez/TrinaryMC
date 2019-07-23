@@ -10,6 +10,9 @@ class LCC_MCL(StMCL):
     def __init__(self):
         super(LCC_MCL, self).__init__()
 
+    def name(self):
+        return "lcc"
+
     def _generate_sample(self, config, node):
         max_x = math.inf
         max_y = math.inf
@@ -22,10 +25,10 @@ class LCC_MCL(StMCL):
                 min_x = max(min_x, n1.currentP.x - config['communication_radius'])
                 min_y = max(min_y, n1.currentP.y - config['communication_radius'])
             elif self in n1.p_pred and self._are_lcc_close(node, n1):
-                max_x = min(max_x, n1.p_pred[self].x + config['communication_radius'])
-                max_y = min(max_y, n1.p_pred[self].y + config['communication_radius'])
-                min_x = max(min_x, n1.p_pred[self].x - config['communication_radius'])
-                min_y = max(min_y, n1.p_pred[self].y - config['communication_radius'])
+                max_x = min(max_x, n1.p_pred[type(self)].x + config['communication_radius'])
+                max_y = min(max_y, n1.p_pred[type(self)].y + config['communication_radius'])
+                min_x = max(min_x, n1.p_pred[type(self)].x - config['communication_radius'])
+                min_y = max(min_y, n1.p_pred[type(self)].y - config['communication_radius'])
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 

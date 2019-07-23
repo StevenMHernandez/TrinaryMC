@@ -9,6 +9,10 @@ from st_mcl.main import StMCL
 class VA_MCL(StMCL):
     def __init__(self):
         super(VA_MCL, self).__init__()
+        self.use_two_hop_neighbors = True
+
+    def name(self):
+        return "virtual_anchors"
 
     def _generate_sample(self, config, node):
         max_x = math.inf

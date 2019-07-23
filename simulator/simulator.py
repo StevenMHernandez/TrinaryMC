@@ -22,21 +22,19 @@ STATE_RETREATING = 2
 
 
 class Simulator:
-    algorithms = [
-        BinaryNoMemMCL(),
-        BinaryMCL(),
-        TrinaryMCL(),
-        StMCL(),
-        VA_MCL(),
-        OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
-        LCC_MCL(),
-    ]
-
-    nodes = []
-
     def __init__(self):
         self.current_global_state_matrix = None
         self.previous_global_state_matrix = None
+        self.nodes = []
+        self.algorithms = [
+            # BinaryNoMemMCL(),
+            # BinaryMCL(),
+            TrinaryMCL(),
+            StMCL(),
+            # VA_MCL(),
+            OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
+            LCC_MCL(),
+        ]
 
     def update_global_state_matrix(self, nodes, communication_radius):
         if self.current_global_state_matrix is not None:
@@ -93,9 +91,9 @@ class Simulator:
         }
 
         # Initialize Results Dictionaries
-        for a in self.algorithms:
+        for algo in self.algorithms:
             for k in algorithm_results.keys():
-                algorithm_results[k][a] = []
+                algorithm_results[k][type(algo)] = []
         for i in range(num_nodes):
             simulator_results['node_positions'].append([])
 
@@ -121,31 +119,31 @@ class Simulator:
             for i in range(len(self.nodes)):
                 simulator_results['node_positions'][i].append(self.nodes[i].currentP)
             # Simulate Communication
-            for a in self.algorithms:  # type: BaseMCL
-                a.communication(self.nodes, self.previous_global_state_matrix, self.current_global_state_matrix)
-                algorithm_results['number_of_packets'][a].append(a.get_total_number_of_packets())
+            for algo in self.algorithms:  # type: BaseMCL
+                algo.communication(self.nodes, self.previous_global_state_matrix, self.current_global_state_matrix)
+                algorithm_results['number_of_packets'][type(algo)].append(algo.get_total_number_of_packets())
 
             # Make predictions for all nodes
-            for a in self.algorithms:
+            for algo in self.algorithms:
                 start_time = time.time()
                 for n in self.nodes:
-                    n.one_hop_neighbor_predicted_distances[a] = {}
+                    n.one_hop_neighbor_predicted_distances[type(algo)] = {}
                 random.seed(t)
-                algorithm_results['number_of_samples'][a].append(a.predict(config, self.nodes, self.current_global_state_matrix))
+                algorithm_results['number_of_samples'][type(algo)].append(algo.predict(config, self.nodes, self.current_global_state_matrix))
                 end_time = time.time()
-                algorithm_results['prediction_time'][a].append(end_time - start_time)
+                algorithm_results['prediction_time'][type(algo)].append(end_time - start_time)
 
             # Evaluate Distance Error (Trinary)
-            for a in self.algorithms:
+            for algo in self.algorithms:
                 total_distance_error = 0.0
                 count = 0
                 for i, n1 in enumerate(self.nodes):  # type: Node
                     # Anchors never add to the distance error
-                    if not n1.is_anchor:
+                    if isinstance(algo, TrinaryMCL) or not n1.is_anchor:
                         # for n2 in n1.one_hop_neighbors + n1.two_hop_neighbors:
                         for j, n2 in enumerate(self.nodes):  # type: Node
                             if self.current_global_state_matrix[i,j] > 0:
-                                distance_predicted = n1.one_hop_neighbor_predicted_distances[a][n2] if n2 in n1.one_hop_neighbor_predicted_distances[a] else 0.0
+                                distance_predicted = n1.one_hop_neighbor_predicted_distances[type(algo)][n2] if n2 in n1.one_hop_neighbor_predicted_distances[type(algo)] else 0.0
                                 distance_actual = n1.distance(n2)
                                 if math.isnan(distance_predicted):
                                     distance_predicted = 0.0
@@ -153,16 +151,16 @@ class Simulator:
                                 count += 1
 
 
-                algorithm_results['distance_error'][a].append(total_distance_error / count if count > 0 else 0.0)
+                algorithm_results['distance_error'][type(algo)].append(total_distance_error / count if count > 0 else 0.0)
 
             # Evaluate Position Error (non-Trinary)
-            for a in self.algorithms:
-                if not isinstance(a, TrinaryMCL):
+            for algo in self.algorithms:
+                if not isinstance(algo, TrinaryMCL):
                     total_error = 0.0
                     for i, n1 in enumerate(self.nodes):  # type: Node
-                        if not math.isnan(n1.p_pred[a].x):
-                            total_error += n1.currentP.distance(n1.p_pred[a])
-                    algorithm_results['position_error'][a].append(total_error)
+                        if not math.isnan(n1.p_pred[type(algo)].x):
+                            total_error += n1.currentP.distance(n1.p_pred[type(algo)])
+                    algorithm_results['position_error'][type(algo)].append(total_error)
 
         return simulator_results, algorithm_results
 

@@ -10,6 +10,9 @@ class BinaryMCL(TrinaryMCL):
         super(BinaryMCL, self).__init__()
         return
 
+    def name(self):
+        return "binary"
+
     def filtering_step(self, config, node, sample_set, current_global_state_matrix):
         filtered_sample_set = []
         for ss in sample_set:  # type: SampleSet

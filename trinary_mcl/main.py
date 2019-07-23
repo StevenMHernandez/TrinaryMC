@@ -16,7 +16,11 @@ STATE_RETREATING = 2
 class TrinaryMCL(StMCL):
     def __init__(self):
         super(TrinaryMCL, self).__init__()
+        self.max_initial_sample_iterations = 100
         return
+
+    def name(self):
+        return "trinary"
 
     def _generate_sub_sample(self, config, placed, to_be_placed: Node):
         max_x = math.inf
@@ -117,15 +121,15 @@ class TrinaryMCL(StMCL):
         for n1 in nodes:  # type: Node
             if n1 not in self.previous_sample_sets:
                 self.previous_sample_sets[n1] = []
-            self.previous_sample_sets[n1], n1.p_pred[self] = self.monte_carlo(config, self.previous_sample_sets[n1], n1,
+            self.previous_sample_sets[n1], n1.p_pred[type(self)] = self.monte_carlo(config, self.previous_sample_sets[n1], n1,
                                                                               current_global_state_matrix)
 
         # Use predicted point to determine predicted distance per neighbor
         for n1 in nodes:  # type: Node
             for n2 in n1.one_hop_neighbors:  # type: Node
-                if n2 not in n1.p_pred[self]:
-                    n1.one_hop_neighbor_predicted_distances[self][n2] = 0.0
+                if n2 not in n1.p_pred[type(self)]:
+                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = 0.0
                 else:
-                    n1.one_hop_neighbor_predicted_distances[self][n2] = n1.p_pred[self][n2]
+                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n1.p_pred[type(self)][n2]
 
         return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))
