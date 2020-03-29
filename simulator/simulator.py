@@ -53,7 +53,7 @@ class Simulator:
                     self.current_global_state_matrix[i, j] = STATE_APPROACHING
 
     def update_one_hop_neighbors_lists(self, nodes):
-        for i, n1 in enumerate(nodes):
+        for i, n1 in enumerate(nodes):  # type: Node
             n1.one_hop_neighbors = []
             for j, n2 in enumerate(nodes):
                 if self.current_global_state_matrix[i, j] > 0:
