@@ -93,7 +93,7 @@ class Simulator:
         # Initialize Results Dictionaries
         for algo in self.algorithms:
             for k in algorithm_results.keys():
-                algorithm_results[k][type(algo)] = []
+                algorithm_results[k][algo.name()] = []
         for i in range(num_nodes):
             simulator_results['node_positions'].append([])
 
@@ -121,17 +121,19 @@ class Simulator:
             # Simulate Communication
             for algo in self.algorithms:  # type: BaseMCL
                 algo.communication(self.nodes, self.previous_global_state_matrix, self.current_global_state_matrix)
-                algorithm_results['number_of_packets'][type(algo)].append(algo.get_total_number_of_packets())
+                algorithm_results['number_of_packets'][algo.name()].append(algo.get_total_number_of_packets())
 
             # Make predictions for all nodes
             for algo in self.algorithms:
                 start_time = time.time()
                 for n in self.nodes:
-                    n.one_hop_neighbor_predicted_distances[type(algo)] = {}
+                    n.one_hop_neighbor_predicted_distances[algo.name()] = {}
                 random.seed(t)
-                algorithm_results['number_of_samples'][type(algo)].append(algo.predict(config, self.nodes, self.current_global_state_matrix))
+                algorithm_results['number_of_samples'][algo.name()].append(algo.predict(config, self.nodes, self.current_global_state_matrix))
                 end_time = time.time()
-                algorithm_results['prediction_time'][type(algo)].append(end_time - start_time)
+                algorithm_results['prediction_time'][algo.name()].append(end_time - start_time)
+                avg_number_of_points_per_sample = 1 if not isinstance(algo, TrinaryMCL) else (avg_number_of_first_hop_neighbors + avg_number_of_second_hop_neighbors)
+                algorithm_results['normalized_prediction_time'][algo.name()].append((end_time - start_time) / avg_number_of_points_per_sample)
 
             # Evaluate Distance Error (Trinary)
             for algo in self.algorithms:
@@ -143,7 +145,7 @@ class Simulator:
                         # for n2 in n1.one_hop_neighbors + n1.two_hop_neighbors:
                         for j, n2 in enumerate(self.nodes):  # type: Node
                             if self.current_global_state_matrix[i,j] > 0:
-                                distance_predicted = n1.one_hop_neighbor_predicted_distances[type(algo)][n2] if n2 in n1.one_hop_neighbor_predicted_distances[type(algo)] else 0.0
+                                distance_predicted = n1.one_hop_neighbor_predicted_distances[algo.name()][n2] if n2 in n1.one_hop_neighbor_predicted_distances[algo.name()] else 0.0
                                 distance_actual = n1.distance(n2)
                                 if math.isnan(distance_predicted):
                                     distance_predicted = 0.0
@@ -151,16 +153,16 @@ class Simulator:
                                 count += 1
 
 
-                algorithm_results['distance_error'][type(algo)].append(total_distance_error / count if count > 0 else 0.0)
+                algorithm_results['distance_error'][algo.name()].append(total_distance_error / count if count > 0 else 0.0)
 
             # Evaluate Position Error (non-Trinary)
             for algo in self.algorithms:
                 if not isinstance(algo, TrinaryMCL):
                     total_error = 0.0
                     for i, n1 in enumerate(self.nodes):  # type: Node
-                        if not math.isnan(n1.p_pred[type(algo)].x):
-                            total_error += n1.currentP.distance(n1.p_pred[type(algo)])
-                    algorithm_results['position_error'][type(algo)].append(total_error)
+                        if not math.isnan(n1.p_pred[algo.name()].x):
+                            total_error += n1.currentP.distance(n1.p_pred[algo.name()])
+                    algorithm_results['position_error'][algo.name()].append(total_error)
 
         return simulator_results, algorithm_results
 

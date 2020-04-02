@@ -85,7 +85,7 @@ class SimulatorSingleStepMDS(Simulator):
             predicted_distances_count = np.ones((n_nodes,n_nodes))
 
             for n in self.nodes:
-                n.one_hop_neighbor_predicted_distances[type(algo)] = {}
+                n.one_hop_neighbor_predicted_distances[algo.name()] = {}
 
             algo.predict(config, self.nodes, self.current_global_state_matrix)
 

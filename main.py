@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     if PLOT_COMPUTATION_TIME:
         for algo in simulator.algorithms:
-            plt.plot(algorithm_results['prediction_time'][type(algo)])
+            plt.plot(algorithm_results['prediction_time'][algo.name()])
         plt.xlabel("Experiment Time (s)")
         plt.ylabel("Time to compute predictions for all nodes (s)")
         plt.legend([type(a) for a in simulator.algorithms])
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     if PLOT_NUMBER_OF_SAMPLES:
         for algo in simulator.algorithms:
-            plt.plot(algorithm_results['number_of_samples'][type(algo)])
+            plt.plot(algorithm_results['number_of_samples'][algo.name()])
         plt.xlabel("Experiment Time (s)")
         plt.ylabel("Number of Samples at end of algorithm")
         plt.legend([type(a) for a in simulator.algorithms])
@@ -65,7 +65,8 @@ if __name__ == "__main__":
 
     if PLOT_COMMUNICATION:
         for algo in simulator.algorithms:
-            plt.plot(algorithm_results['number_of_packets'][type(algo)])
+            plt.plot(algorithm_results['number_of_packets'][algo.name()])
+            print("Final Number of Packets", algo.name(), algorithm_results['number_of_packets'][algo.name()][-1])
         plt.xlabel("Time (s)")
         plt.ylabel("Number of Unique Packet Transmissions")
         plt.legend([type(a) for a in simulator.algorithms])
@@ -75,8 +76,8 @@ if __name__ == "__main__":
         print(algorithm_results['position_error'])
         for algo in simulator.algorithms:
             if not isinstance(algo, TrinaryMCL):
-                print(algo, "average accuracy:", sum(algorithm_results['position_error'][type(algo)]) / communication_radius / len(algorithm_results['position_error'][type(algo)]))
-                plt.plot(range(1,num_time_instances+1), np.array(algorithm_results['position_error'][type(algo)]) / communication_radius, ':')
+                print(algo, "average accuracy:", sum(algorithm_results['position_error'][algo.name()]) / communication_radius / len(algorithm_results['position_error'][algo.name()]))
+                plt.plot(range(1,num_time_instances+1), np.array(algorithm_results['position_error'][algo.name()]) / communication_radius, ':')
         plt.xlabel("Time (s)")
         plt.ylabel("Position Prediction Error")
         plt.legend([type(a) for a in simulator.algorithms if not isinstance(a, TrinaryMCL)])
@@ -85,8 +86,9 @@ if __name__ == "__main__":
     if PLOT_DISTANCE_ERROR:
         print(algorithm_results['distance_error'])
         for algo in simulator.algorithms:
-            print(algo, "average accuracy:", sum(algorithm_results['distance_error'][type(algo)]) / communication_radius / len(algorithm_results['distance_error'][type(algo)]))
-            plt.plot(range(1,num_time_instances+1), np.array(algorithm_results['distance_error'][type(algo)]) / communication_radius, ':')
+            if len(algorithm_results['distance_error'][algo.name()]):
+                print(algo, "average accuracy:", sum(algorithm_results['distance_error'][algo.name()]) / communication_radius / len(algorithm_results['distance_error'][algo.name()]))
+                plt.plot(range(1,num_time_instances+1), np.array(algorithm_results['distance_error'][algo.name()]) / communication_radius, ':')
         plt.xlabel("Time (s)")
         plt.ylabel("Relative Distance Error")
         plt.legend([type(a) for a in simulator.algorithms])

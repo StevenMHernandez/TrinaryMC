@@ -28,7 +28,7 @@ if __name__ == "__main__":
     for k in total_algorithm_results.keys():
         total_algorithm_results[k] = {}
         for algo in Simulator().algorithms:
-            total_algorithm_results[k][type(algo)] = np.zeros((len(percentage_are_anchors_list),1))
+            total_algorithm_results[k][algo.name()] = np.zeros((len(percentage_are_anchors_list),1))
 
     # Run Grid
     for i, percentage_are_anchors in enumerate(percentage_are_anchors_list):
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
             for k in total_algorithm_results.keys():
                 for algo in simulator.algorithms:
-                    total_algorithm_results[k][type(algo)][i] += np.mean(algorithm_results[k][type(algo)]) / num_re_runs
+                    total_algorithm_results[k][algo.name()][i] += np.mean(algorithm_results[k][algo.name()]) / num_re_runs
 
             print("Simulation", i + 1, "/", len(percentage_are_anchors_list),"Took", time() - start, "seconds")
 
@@ -63,8 +63,9 @@ if __name__ == "__main__":
     print(percentage_are_anchors_list)
     for k in total_algorithm_results.keys():
         for algo in Simulator().algorithms:
-            print([x[0] for x in total_algorithm_results[k][type(algo)]])
-            plt.plot(percentage_are_anchors_list, total_algorithm_results[k][type(algo)], ':')
+            print([x[0] for x in total_algorithm_results[k][algo.name()]])
+            plt.plot(percentage_are_anchors_list, total_algorithm_results[k][algo.name()], ':')
+        plt.title(k)
         plt.legend(Simulator().algorithms)
         plt.show()
 
