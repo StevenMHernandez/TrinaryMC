@@ -3,7 +3,7 @@ from random import uniform
 
 from simulator.node import Node
 from simulator.point import Point
-from st_mcl.main import StMCL
+from mcl_algorithms.st_mcl.main import StMCL
 
 
 class LCC_MCL(StMCL):
@@ -25,10 +25,10 @@ class LCC_MCL(StMCL):
                 min_x = max(min_x, n1.currentP.x - config['communication_radius'])
                 min_y = max(min_y, n1.currentP.y - config['communication_radius'])
             elif self in n1.p_pred and self._are_lcc_close(node, n1):
-                max_x = min(max_x, n1.p_pred[type(self)].x + config['communication_radius'])
-                max_y = min(max_y, n1.p_pred[type(self)].y + config['communication_radius'])
-                min_x = max(min_x, n1.p_pred[type(self)].x - config['communication_radius'])
-                min_y = max(min_y, n1.p_pred[type(self)].y - config['communication_radius'])
+                max_x = min(max_x, n1.p_pred[self.name()].x + config['communication_radius'])
+                max_y = min(max_y, n1.p_pred[self.name()].y + config['communication_radius'])
+                min_x = max(min_x, n1.p_pred[self.name()].x - config['communication_radius'])
+                min_y = max(min_y, n1.p_pred[self.name()].y - config['communication_radius'])
 
         return Point(uniform(min_x, max_x), uniform(min_y, max_y))
 

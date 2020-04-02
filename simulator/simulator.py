@@ -4,17 +4,12 @@ import time
 
 import numpy as np
 
-from base_mcl_algorithm.base_mcl import BaseMCL
+from mcl_algorithms.base_mcl_algorithm.base_mcl import BaseMCL
 # from binary_mcl.main import BinaryMCL
 # from binary_no_mem_mcl.main import BinaryNoMemMCL
 # from orbit_mcl.main import OrbitMCL
 from simulator.node import Node
-from simulator.point import Point
-from st_mcl.main import StMCL
-from trinary_mcl.main import TrinaryMCL
-from trinary_mcl.sample_set import SampleSet
-from va_mcl.main import VA_MCL
-from lcc_mcl.main import LCC_MCL
+from mcl_algorithms.trinary_mcl.main import TrinaryMCL
 
 STATE_INVISIBLE = 0
 STATE_APPROACHING = 1
@@ -78,6 +73,7 @@ class Simulator:
             'distance_error': {},
             'position_error': {},
             'prediction_time': {},
+            'normalized_prediction_time': {},
             'number_of_samples': {},
         }
         simulator_results = {
@@ -115,8 +111,10 @@ class Simulator:
             self.update_one_hop_neighbors_lists(self.nodes)
             self.update_two_hop_neighbors_lists(self.nodes)
 
-            simulator_results['avg_number_of_first_hop_neighbors'].append(sum([len(n.one_hop_neighbors) for n in self.nodes]) / len(self.nodes))
-            simulator_results['avg_number_of_second_hop_neighbors'].append(sum([len(n.two_hop_neighbors) for n in self.nodes]) / len(self.nodes))
+            avg_number_of_first_hop_neighbors = sum([len(n.one_hop_neighbors) for n in self.nodes]) / len(self.nodes)
+            avg_number_of_second_hop_neighbors = sum([len(n.two_hop_neighbors) for n in self.nodes]) / len(self.nodes)
+            simulator_results['avg_number_of_first_hop_neighbors'].append(avg_number_of_first_hop_neighbors)
+            simulator_results['avg_number_of_second_hop_neighbors'].append(avg_number_of_second_hop_neighbors)
 
             # Log node positions
             for i in range(len(self.nodes)):

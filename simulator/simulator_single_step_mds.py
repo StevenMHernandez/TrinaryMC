@@ -9,7 +9,7 @@ from sklearn.manifold import MDS
 from simulator.node import Node
 from simulator.point import Point
 from simulator.simulator import Simulator
-from trinary_mcl.main import TrinaryMCL
+from mcl_algorithms.trinary_mcl.main import TrinaryMCL
 
 STATE_INVISIBLE = 0
 STATE_APPROACHING = 1

@@ -5,8 +5,8 @@ import numpy as np
 
 from simulator.node import Node
 from simulator.point import Point
-from st_mcl.main import StMCL
-from trinary_mcl.sample_set import SampleSet
+from mcl_algorithms.st_mcl.main import StMCL
+from mcl_algorithms.trinary_mcl.sample_set import SampleSet
 
 STATE_INVISIBLE = 0
 STATE_APPROACHING = 1
@@ -122,15 +122,15 @@ class TrinaryMCL(StMCL):
         for n1 in nodes:  # type: Node
             if n1 not in self.previous_sample_sets:
                 self.previous_sample_sets[n1] = []
-            self.previous_sample_sets[n1], n1.p_pred[type(self)] = self.monte_carlo(config, self.previous_sample_sets[n1], n1,
+            self.previous_sample_sets[n1], n1.p_pred[self.name()] = self.monte_carlo(config, self.previous_sample_sets[n1], n1,
                                                                               current_global_state_matrix)
 
         # Use predicted point to determine predicted distance per neighbor
         for n1 in nodes:  # type: Node
             for n2 in n1.one_hop_neighbors:  # type: Node
-                if n2 not in n1.p_pred[type(self)]:
-                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = 0.0
+                if n2 not in n1.p_pred[self.name()]:
+                    n1.one_hop_neighbor_predicted_distances[self.name()][n2] = 0.0
                 else:
-                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n1.p_pred[type(self)][n2]
+                    n1.one_hop_neighbor_predicted_distances[self.name()][n2] = n1.p_pred[self.name()][n2]
 
         return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from simulator.simulator import Simulator
-from trinary_mcl.main import TrinaryMCL
+from mcl_algorithms.trinary_mcl.main import TrinaryMCL
 
 if __name__ == "__main__":
     start = time()

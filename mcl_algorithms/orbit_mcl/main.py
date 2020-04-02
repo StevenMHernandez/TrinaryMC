@@ -1,9 +1,7 @@
-from random import shuffle
-
 import numpy as np
 
 from simulator.point import Point
-from st_mcl.main import StMCL
+from mcl_algorithms.st_mcl.main import StMCL
 
 
 class OrbitMCL(StMCL):

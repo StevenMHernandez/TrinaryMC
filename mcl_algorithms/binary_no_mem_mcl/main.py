@@ -1,4 +1,4 @@
-from binary_mcl.main import BinaryMCL
+from mcl_algorithms.binary_mcl.main import BinaryMCL
 
 
 class BinaryNoMemMCL(BinaryMCL):

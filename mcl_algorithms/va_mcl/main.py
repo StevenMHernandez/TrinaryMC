@@ -1,9 +1,9 @@
 import math
-from random import uniform, shuffle
+from random import uniform
 
 from simulator.node import Node
 from simulator.point import Point
-from st_mcl.main import StMCL
+from mcl_algorithms.st_mcl.main import StMCL
 
 
 class VA_MCL(StMCL):

@@ -4,7 +4,7 @@ from random import shuffle
 
 import numpy as np
 
-from base_mcl_algorithm.base_mcl import BaseMCL
+from mcl_algorithms.base_mcl_algorithm.base_mcl import BaseMCL
 from simulator.node import Node
 from simulator.point import Point
 
@@ -103,15 +103,15 @@ class StMCL(BaseMCL):
         for n1 in nodes:  # type: Node
             if n1 not in self.previous_sample_sets:
                 self.previous_sample_sets[n1] = []
-            self.previous_sample_sets[n1], n1.p_pred[type(self)] = self.monte_carlo(config, self.previous_sample_sets[n1], n1, current_global_state_matrix)
+            self.previous_sample_sets[n1], n1.p_pred[self.name()] = self.monte_carlo(config, self.previous_sample_sets[n1], n1, current_global_state_matrix)
 
         # Use predicted point to determine predicted distance per neighbor
         for n1 in nodes:  # type: Node
             for n2 in n1.one_hop_neighbors:  # type: Node
-                p_pred = n1.p_pred[type(self)]
+                p_pred = n1.p_pred[self.name()]
                 if n2.is_anchor:
-                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n2.currentP.distance(p_pred)
+                    n1.one_hop_neighbor_predicted_distances[self.name()][n2] = n2.currentP.distance(p_pred)
                 elif self in n2.p_pred:
-                    n1.one_hop_neighbor_predicted_distances[type(self)][n2] = n2.p_pred[type(self)].distance(p_pred)
+                    n1.one_hop_neighbor_predicted_distances[self.name()][n2] = n2.p_pred[self.name()].distance(p_pred)
 
         return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))

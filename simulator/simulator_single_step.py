@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 from simulator.node import Node
 from simulator.point import Point
 from simulator.simulator import Simulator
-from st_mcl.main import StMCL
-from va_mcl.main import VA_MCL
-from orbit_mcl.main import OrbitMCL
-from lcc_mcl.main import LCC_MCL
+from mcl_algorithms.st_mcl.main import StMCL
+from mcl_algorithms.va_mcl.main import VA_MCL
+from mcl_algorithms.orbit_mcl import OrbitMCL
+from mcl_algorithms.lcc_mcl.main import LCC_MCL
 
 STATE_INVISIBLE = 0
 STATE_APPROACHING = 1

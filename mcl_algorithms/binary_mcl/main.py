@@ -1,5 +1,5 @@
-from trinary_mcl.main import TrinaryMCL
-from trinary_mcl.sample_set import SampleSet
+from mcl_algorithms.trinary_mcl.main import TrinaryMCL
+from mcl_algorithms.trinary_mcl.sample_set import SampleSet
 
 STATE_INVISIBLE = 0
 STATE_VISIBLE = 1
