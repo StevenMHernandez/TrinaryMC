@@ -31,7 +31,7 @@ class BaseMCL(object):
         for _ in set(one_hop_neighbors_which_received_update):
             self.add_packet_communication('share_state_change_second_hop')
 
-    def communication_share_trinary_connectivity_change_to_all_neighbors(self, nodes, previous_global_state_matrix, current_global_state_matrix):
+    def communication_share_trinary_connectivity_change_to_all_neighbors(self, nodes, previous_global_state_matrix, current_global_state_matrix, k_hop_neighbors):
         one_hop_neighbors_which_received_update = []
         for i, n1 in enumerate(nodes):
             state_changed_between_any_neighbor = False
@@ -45,8 +45,13 @@ class BaseMCL(object):
                 for n2 in n1.one_hop_neighbors:
                     self.add_packet_communication('share_state_change_first_hop')
                     one_hop_neighbors_which_received_update.append(n2)
-        for _ in set(one_hop_neighbors_which_received_update):
-            self.add_packet_communication('share_state_change_second_hop')
+        second_hop_neighbors_which_received_update = []
+        if k_hop_neighbors > 1:
+            for n2 in set(one_hop_neighbors_which_received_update):
+                self.add_packet_communication('share_state_change_second_hop')
+                if k_hop_neighbors > 2:
+                    for n3 in n2.one_hop_neighbors:
+                        self.add_packet_communication('share_state_change_third_hop')
 
     def communication_share_gps_to_all_1_and_2_hop_neighbors(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         for n1 in [n for n in nodes if n.is_anchor]:

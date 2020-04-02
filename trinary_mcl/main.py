@@ -14,13 +14,14 @@ STATE_RETREATING = 2
 
 
 class TrinaryMCL(StMCL):
-    def __init__(self):
+    def __init__(self, k_hop_neighbors=2):
         super(TrinaryMCL, self).__init__()
         self.max_initial_sample_iterations = 100
+        self.k_hop_neighbors = k_hop_neighbors
         return
 
     def name(self):
-        return "trinary"
+        return "trinary(k-hop:" + str(self.k_hop_neighbors) + ")"
 
     def _generate_sub_sample(self, config, placed, to_be_placed: Node):
         max_x = math.inf
@@ -114,7 +115,7 @@ class TrinaryMCL(StMCL):
 
     def communication(self, nodes, previous_global_state_matrix, current_global_state_matrix):
         self.communication_share_trinary_connectivity_change_to_all_neighbors(nodes, previous_global_state_matrix,
-                                                                              current_global_state_matrix)
+                                                                              current_global_state_matrix, k_hop_neighbors=self.k_hop_neighbors)
 
     def predict(self, config, nodes, current_global_state_matrix):
         # Predict for all nodes

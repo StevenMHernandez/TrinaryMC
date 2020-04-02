@@ -5,9 +5,9 @@ import time
 import numpy as np
 
 from base_mcl_algorithm.base_mcl import BaseMCL
-from binary_mcl.main import BinaryMCL
-from binary_no_mem_mcl.main import BinaryNoMemMCL
-from orbit_mcl.main import OrbitMCL
+# from binary_mcl.main import BinaryMCL
+# from binary_no_mem_mcl.main import BinaryNoMemMCL
+# from orbit_mcl.main import OrbitMCL
 from simulator.node import Node
 from simulator.point import Point
 from st_mcl.main import StMCL
@@ -29,11 +29,14 @@ class Simulator:
         self.algorithms = [
             # BinaryNoMemMCL(),
             # BinaryMCL(),
-            TrinaryMCL(),
-            StMCL(),
-            # VA_MCL(),
-            OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
-            LCC_MCL(),
+            TrinaryMCL(k_hop_neighbors=1),
+            TrinaryMCL(k_hop_neighbors=2),
+            TrinaryMCL(k_hop_neighbors=3),
+            # TrinaryAnchors(),
+            # StMCL(),
+            # # VA_MCL(),
+            # OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
+            # LCC_MCL(),
         ]
 
     def update_global_state_matrix(self, nodes, communication_radius):
