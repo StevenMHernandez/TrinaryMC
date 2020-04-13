@@ -1,3 +1,4 @@
+import random
 from time import time
 
 import matplotlib.pyplot as plt
@@ -11,10 +12,10 @@ if __name__ == "__main__":
     simulator = Simulator()
 
     num_time_instances = 100
-    percentage_are_anchors = 0.25
+    percentage_are_anchors = 0.2
 
     num_nodes = 50
-    communication_radius = 25
+    communication_radius = 50
     max_width = 500
     max_height = 500
     max_v = 10
@@ -30,11 +31,24 @@ if __name__ == "__main__":
 
     PLOT_NODE_POSITIONS = False
     PLOT_NUMBER_OF_NODES = False
+    PLOT_NUMBER_OF_NEIGHBORS = False
     PLOT_COMPUTATION_TIME = False
-    PLOT_NUMBER_OF_SAMPLES = True
-    PLOT_COMMUNICATION = False
-    PLOT_DISTANCE_ERROR = True
+    PLOT_NUMBER_OF_SAMPLES = False
+    PLOT_COMMUNICATION = True
+    PLOT_DISTANCE_ERROR = False
     PLOT_POSITION_ERROR = False
+    PLOT_CDF = False
+
+    def cdf(X, reverse=False):
+        if isinstance(X, list):
+            X = np.array(X)
+        Y = np.zeros(X.shape)
+        for i in range(len(X)):
+            if reverse:
+                Y[i] = np.ma.count(X[X >= X[i]])
+            else:
+                Y[i] = np.ma.count(X[X <= X[i]])
+        return Y / len(X)
 
     if PLOT_NODE_POSITIONS:
         for points in simulator_results['node_positions']:
@@ -55,11 +69,33 @@ if __name__ == "__main__":
         plt.legend([type(a) for a in simulator.algorithms])
         plt.show()
 
+    if PLOT_NUMBER_OF_NEIGHBORS:
+        X1 = sorted([len(n.one_hop_neighbors) for n in simulator.nodes])
+        plt.plot(X1,cdf(X1))
+        X2 = sorted([len(n.two_hop_neighbors) for n in simulator.nodes])
+        plt.plot(X2, cdf(X2))
+        plt.legend(["1-hop neighbors", "2-hop neighbors"])
+        plt.xlabel("Number of k-hop neighbors")
+        plt.ylabel("CDF")
+        plt.show()
+
     if PLOT_NUMBER_OF_SAMPLES:
         for algo in simulator.algorithms:
-            plt.plot(algorithm_results['number_of_samples'][algo.name()])
+            plt.plot(np.mean(algorithm_results['number_of_samples'][algo.name()], axis=1))
         plt.xlabel("Experiment Time (s)")
         plt.ylabel("Number of Samples at end of algorithm")
+        plt.legend([type(a) for a in simulator.algorithms])
+        plt.show()
+        for algo in simulator.algorithms:
+            X = algorithm_results['number_of_samples'][algo.name()]
+            X = np.array(X)
+            X = X.reshape([1, X.shape[0] * X.shape[1]]).tolist()[0]
+            X = sorted(X,reverse=True)
+            print(X)
+            plt.plot(X, cdf(X,reverse=True))
+        plt.xlabel("Number of Samples")
+        plt.ylabel("CDF")
+        plt.xlim([max(X), min(X)])
         plt.legend([type(a) for a in simulator.algorithms])
         plt.show()
 
@@ -93,5 +129,26 @@ if __name__ == "__main__":
         plt.ylabel("Relative Distance Error")
         plt.legend([type(a) for a in simulator.algorithms])
         plt.show()
+
+    if PLOT_CDF:
+        for algo_i,algo in enumerate(simulator.algorithms):
+            X_prime = algorithm_results['distance_error_all'][algo.name()]
+            l = sum([len(x) for x in X_prime])
+            X = []
+            for x in X_prime:
+                X += x
+
+            X = np.array(sorted(X)) / communication_radius
+            # X = np.array(sorted(algorithm_results['distance_error_all'][algo.name()][-1])) / communication_radius
+            plt.plot(X, cdf(X))
+            print("%",algo.name())
+            print("X_{} = [{}]".format(algo_i, ",".join([str(x) for x in X])))
+            print("CDF_{} = [{}]".format(algo_i, ",".join([str(x) for x in cdf(X)])))
+        plt.legend([a.name() for a in simulator.algorithms], loc='lower right')
+        plt.xlabel("Error")
+        plt.ylabel("CDF")
+        plt.xlim([0,1])
+        plt.show()
+
 
     print("Took", time() - start, "seconds")

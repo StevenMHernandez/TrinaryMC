@@ -114,4 +114,4 @@ class StMCL(BaseMCL):
                 elif self in n2.p_pred:
                     n1.one_hop_neighbor_predicted_distances[self.name()][n2] = n2.p_pred[self.name()].distance(p_pred)
 
-        return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))
+        return np.array([len(self.previous_sample_sets[n]) for n in nodes])

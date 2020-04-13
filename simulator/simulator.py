@@ -5,9 +5,11 @@ import time
 import numpy as np
 
 from mcl_algorithms.base_mcl_algorithm.base_mcl import BaseMCL
-# from binary_mcl.main import BinaryMCL
-# from binary_no_mem_mcl.main import BinaryNoMemMCL
-# from orbit_mcl.main import OrbitMCL
+from mcl_algorithms.binary_mcl.main import BinaryMCL
+from mcl_algorithms.binary_no_mem_mcl.main import BinaryNoMemMCL
+from mcl_algorithms.lcc_mcl.main import LCC_MCL
+from mcl_algorithms.orbit_mcl.main import OrbitMCL
+from mcl_algorithms.st_mcl.main import StMCL
 from simulator.node import Node
 from mcl_algorithms.trinary_mcl.main import TrinaryMCL
 
@@ -24,12 +26,11 @@ class Simulator:
         self.algorithms = [
             # BinaryNoMemMCL(),
             # BinaryMCL(),
-            TrinaryMCL(k_hop_neighbors=1),
+            # TrinaryMCL(k_hop_neighbors=1),
             TrinaryMCL(k_hop_neighbors=2),
-            TrinaryMCL(k_hop_neighbors=3),
-            # TrinaryAnchors(),
+            # TrinaryMCL(k_hop_neighbors=3),
             # StMCL(),
-            # # VA_MCL(),
+            # VA_MCL(),
             # OrbitMCL(),  # From experiments, orbit works best when there are different sized communication radii
             # LCC_MCL(),
         ]
@@ -71,6 +72,7 @@ class Simulator:
         algorithm_results = {
             'number_of_packets': {},
             'distance_error': {},
+            'distance_error_all': {},
             'position_error': {},
             'prediction_time': {},
             'normalized_prediction_time': {},
@@ -101,6 +103,7 @@ class Simulator:
             self.nodes.append(Node(i, i < num_anchors, config=config))
 
         for t in range(num_time_instances):
+            print("t:", t)
 
             # Move each node
             for n in self.nodes:  # type: Node
@@ -139,6 +142,7 @@ class Simulator:
             # Evaluate Distance Error (Trinary)
             for algo in self.algorithms:
                 total_distance_error = 0.0
+                distance_errors_all = []
                 count = 0
                 for i, n1 in enumerate(self.nodes):  # type: Node
                     # Anchors never add to the distance error
@@ -151,10 +155,13 @@ class Simulator:
                                 if math.isnan(distance_predicted):
                                     distance_predicted = 0.0
                                 total_distance_error += abs(distance_actual - distance_predicted)
+                                distance_errors_all.append(abs(distance_actual - distance_predicted))
                                 count += 1
 
 
                 algorithm_results['distance_error'][algo.name()].append(total_distance_error / count if count > 0 else 0.0)
+                algorithm_results['distance_error_all'][algo.name()].append(distance_errors_all)
+
 
             # Evaluate Position Error (non-Trinary)
             for algo in self.algorithms:

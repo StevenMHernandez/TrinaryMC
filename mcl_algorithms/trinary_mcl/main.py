@@ -72,6 +72,15 @@ class TrinaryMCL(StMCL):
                     new_y = p.y + d * math.sin(a)
                     sampled_ss.node_dict[n] = Point(new_x, new_y)
                     sampled_ss.node_dict_previous[n] = p
+                for n in node.one_hop_neighbors:
+                    if n not in sampled_ss.node_dict:
+                        placed = sampled_ss.node_dict
+                        sampled_ss.node_dict[n] = self._generate_sub_sample(config, placed, n)
+                for n in node.two_hop_neighbors:
+                    if n not in sampled_ss.node_dict:
+                        placed = sampled_ss.node_dict
+                        sampled_ss.node_dict[n] = self._generate_sub_sample(config, placed, n)
+
                 sampled_sample_set.append(sampled_ss)
 
         return sampled_sample_set
@@ -85,8 +94,9 @@ class TrinaryMCL(StMCL):
                     if n1 is not n2:
                         if ss.node_dict[n1].distance(ss.node_dict[n2]) > config['communication_radius']:
                             predicted_node_action = STATE_INVISIBLE
-                        elif ss.node_dict[n1].distance(ss.node_dict[n2]) > ss.node_dict_previous[n1].distance(
-                                ss.node_dict_previous[n2]):
+                        elif (n1 in ss.node_dict_previous and n2 in ss.node_dict_previous) \
+                                and ss.node_dict[n1].distance(ss.node_dict[n2])\
+                                > ss.node_dict_previous[n1].distance(ss.node_dict_previous[n2]):
                             predicted_node_action = STATE_RETREATING
                         else:
                             predicted_node_action = STATE_APPROACHING
@@ -133,4 +143,4 @@ class TrinaryMCL(StMCL):
                 else:
                     n1.one_hop_neighbor_predicted_distances[self.name()][n2] = n1.p_pred[self.name()][n2]
 
-        return np.mean(np.array([len(self.previous_sample_sets[n]) for n in nodes]))
+        return np.array([len(self.previous_sample_sets[n]) for n in nodes])
